@@ -24,7 +24,7 @@
     </style>
 </head>
 <body class="font-sans leading-normal tracking-normal">
-<div x-data="app" x-init="init()">
+<div x-data="app" x-init="init">
 
 <header class="header-bg shadow-md">
     <div class="container mx-auto px-6 py-3 flex justify-between items-center">
@@ -60,6 +60,11 @@
             <button @click="addNoteModal = false" class="text-gray-300 hover:text-white px-3 py-1 rounded-full ml-2">Zrušit</button>
         </div>
     </div>
+
+    <!-- Úvodní zpráva -->
+    <section class="bg-gray-800 shadow-md rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-bold mb-4">Dobrý den</h2>
+    </section>
 
     <!-- Sekce kategorií -->
     <section class="bg-gray-800 shadow-md rounded-lg p-6 mb-6">
@@ -104,7 +109,7 @@
 document.addEventListener('alpine:init', () => {
     Alpine.data('app', () => ({
         addCategoryModal: false,
-        addNoteModal: false,
+        addNoteModal: true, // Zobrazit modál při načtení stránky
         newCategoryName: '',
         newNote: {
             id: Date.now(),
