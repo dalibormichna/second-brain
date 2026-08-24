@@ -3,195 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Second Brain</title>
+    <title>Second-brain-pwa</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f5f7fa;
+            background-color: #1a202c;
+            color: #cbd5e0;
         }
-        .bg-george-primary {
-            background-color: #00a8e8;
+        .header-bg {
+            background-color: #3d4852;
         }
-        .text-george-primary {
-            color: #00a8e8;
+        .btn-primary {
+            background-color: #6574cd;
+            border-color: #6574cd;
+        }
+        .btn-primary:hover {
+            background-color: #4c51bf;
+            border-color: #4c51bf;
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center">
-    <div x-data="secondBrain" class="w-full max-w-3xl p-6 bg-white rounded-lg shadow-md space-y-4">
-        <h1 class="text-2xl font-bold text-gray-800">Second Brain</h1>
-        
-        <!-- Project Management -->
-        <div class="border-b border-gray-300 pb-4">
-            <h2 class="font-semibold mb-2">Projects</h2>
-            <div class="flex items-center justify-between space-x-2">
-                <input x-model="newProject.name" placeholder="New Project Name" class="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <button @click="addProject()" class="bg-george-primary text-white px-4 py-2 rounded">Add</button>
-            </div>
-            <ul class="divide-y divide-gray-300 space-y-2 mt-2">
-                <template x-for="(project, index) in projects" :key="index">
-                    <li class="p-2 flex justify-between items-center bg-white rounded-lg shadow-sm">
-                        <span x-text="project.name"></span>
-                        <div>
-                            <button @click="editProject(index)" class="text-blue-500">Edit</button>
-                            <button @click="deleteProject(index)" class="text-red-500 ml-2">Delete</button>
-                        </div>
-                    </li>
-                </template>
-            </ul>
-        </div>
+<body class="font-sans leading-normal tracking-normal">
+<div x-data="app" x-init="init()">
 
-        <!-- Idea Management -->
-        <div class="border-b border-gray-300 pb-4">
-            <h2 class="font-semibold mb-2">Ideas</h2>
-            <div class="flex items-center justify-between space-x-2">
-                <input x-model="newIdea.content" placeholder="New Idea" class="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <select x-model="newIdea.category" class="border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">Select Category</option>
-                    <template x-for="category in categories" :key="category">
-                        <option :value="category" x-text="category"></option>
-                    </template>
-                </select>
-                <button @click="addIdea()" class="bg-george-primary text-white px-4 py-2 rounded">Add Idea</button>
-            </div>
-            <ul class="divide-y divide-gray-300 space-y-2 mt-2">
-                <template x-for="(idea, index) in filteredIdeas" :key="index">
-                    <li class="p-2 flex justify-between items-center bg-white rounded-lg shadow-sm">
-                        <span x-text="`${idea.content} (${idea.category})`"></span>
-                        <div>
-                            <button @click="editIdea(index)" class="text-blue-500">Edit</button>
-                            <button @click="deleteIdea(index)" class="text-red-500 ml-2">Delete</button>
-                        </div>
-                    </li>
-                </template>
-            </ul>
-        </div>
+<header class="header-bg shadow-md">
+    <div class="container mx-auto px-6 py-3 flex justify-between items-center">
+        <h1 class="text-2xl font-bold">Second-brain-pwa</h1>
+        <button @click="addCategoryModal = true" class="btn-primary text-white px-3 py-1 rounded-full">Přidat Kategorii</button>
+    </div>
+</header>
 
-        <!-- Copy Context for AI -->
-        <div>
-            <button @click="copyContextForAI()" class="bg-green-500 text-white px-4 py-2 rounded">Copy Context for AI</button>
-        </div>
-
-        <!-- Category Filter -->
-        <div>
-            <select x-model="filterCategory" class="border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">All Categories</option>
-                <template x-for="category in categories" :key="category">
-                    <option :value="category" x-text="category"></option>
-                </template>
-            </select>
+<main class="container mx-auto px-6 py-8">
+    <!-- Modal pro přidání kategorie -->
+    <div x-show="addCategoryModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-sm">
+            <h2 class="text-xl font-bold mb-4">Přidat Kategorii</h2>
+            <input x-model="newCategoryName" type="text" placeholder="Název kategorie" class="w-full px-3 py-2 rounded-lg border border-gray-700 bg-gray-900 text-white mb-4">
+            <button @click="addCategory" class="btn-primary text-white px-3 py-1 rounded-full">Přidat</button>
+            <button @click="addCategoryModal = false" class="text-gray-300 hover:text-white px-3 py-1 rounded-full ml-2">Zrušit</button>
         </div>
     </div>
 
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('secondBrain', () => ({
-                newProject: { name: '' },
-                projects: JSON.parse(localStorage.getItem('projects')) || [],
-                newIdea: { content: '', category: '' },
-                ideas: JSON.parse(localStorage.getItem('ideas')) || [],
-                categories: ['Work', 'Personal', 'Other'],
-                filterCategory: '',
-                addProject() {
-                    if (this.newProject.name) {
-                        this.projects.push({ name: this.newProject.name });
-                        this.saveData();
-                        console.log('Project added:', this.projects);
-                        this.newProject.name = '';
-                    }
-                },
-                editProject(index) {
-                    const newName = prompt('Edit project name:', this.projects[index].name);
-                    if (newName) {
-                        this.projects[index].name = newName;
-                        this.saveData();
-                        console.log('Project edited:', this.projects);
-                    }
-                },
-                deleteProject(index) {
-                    if (confirm('Are you sure?')) {
-                        this.projects.splice(index, 1);
-                        this.saveData();
-                        console.log('Project deleted:', this.projects);
-                    }
-                },
-                addIdea() {
-                    if (this.newIdea.content && this.newIdea.category) {
-                        this.ideas.push({ content: this.newIdea.content, category: this.newIdea.category });
-                        this.saveData();
-                        console.log('Idea added:', this.ideas);
-                        this.newIdea.content = '';
-                        this.newIdea.category = '';
-                    }
-                },
-                editIdea(index) {
-                    const newContent = prompt('Edit idea:', this.ideas[index].content);
-                    if (newContent) {
-                        this.ideas[index].content = newContent;
-                        this.saveData();
-                        console.log('Idea edited:', this.ideas);
-                    }
-                },
-                deleteIdea(index) {
-                    if (confirm('Are you sure?')) {
-                        this.ideas.splice(index, 1);
-                        this.saveData();
-                        console.log('Idea deleted:', this.ideas);
-                    }
-                },
-                copyContextForAI() {
-                    const context = JSON.stringify({
-                        projects: this.projects,
-                        ideas: this.ideas
-                    }, null, 2);
-                    navigator.clipboard.writeText(context).then(() => alert('Copied to clipboard!'));
-                },
-                get filteredIdeas() {
-                    return this.filterCategory ? this.ideas.filter(idea => idea.category === this.filterCategory) : this.ideas;
-                },
-                saveData() {
-                    localStorage.setItem('projects', JSON.stringify(this.projects));
-                    localStorage.setItem('ideas', JSON.stringify(this.ideas));
-                    console.log('Data saved:', { projects: this.projects, ideas: this.ideas });
-                }
-            }));
-        });
+    <!-- Modal pro přidání poznámky -->
+    <div x-show="addNoteModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-sm">
+            <h2 class="text-xl font-bold mb-4">Přidat Poznámku</h2>
+            <input x-model="newNote.title" type="text" placeholder="Název poznámky" class="w-full px-3 py-2 rounded-lg border border-gray-700 bg-gray-900 text-white mb-4">
+            <textarea x-model="newNote.content" placeholder="Obsah poznámky" class="w-full px-3 py-2 rounded-lg border border-gray-700 bg-gray-900 text-white mb-4 h-32"></textarea>
+            <select x-model="newNote.categoryId" class="w-full px-3 py-2 rounded-lg border border-gray-700 bg-gray-900 text-white mb-4">
+                <option value="" disabled selected>Vyberte kategorii</option>
+                <template x-for="(category, index) in categories" :key="index">
+                    <option :value="category.id">{{ category.name }}</option>
+                </template>
+            </select>
+            <button @click="addNote" class="btn-primary text-white px-3 py-1 rounded-full">Přidat</button>
+            <button @click="addNoteModal = false" class="text-gray-300 hover:text-white px-3 py-1 rounded-full ml-2">Zrušit</button>
+        </div>
+    </div>
 
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => console.log('SW registered:', registration))
-                    .catch(error => console.error('SW registration failed:', error));
-            });
+    <!-- Sekce kategorií -->
+    <section class="bg-gray-800 shadow-md rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-bold mb-4">Kategorie</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <template x-for="(category, index) in categories" :key="index">
+                <div class="bg-gray-700 p-4 rounded-lg shadow-sm flex items-center justify-between">
+                    <p>{{ category.name }}</p>
+                    <button @click="deleteCategory(category.id)" class="text-red-500 hover:text-red-600">Odstranit</button>
+                </div>
+            </template>
+        </div>
+    </section>
+
+    <!-- Sekce poznámek -->
+    <section class="bg-gray-800 shadow-md rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-bold mb-4">Poznámky</h2>
+        <button @click="addNoteModal = true" class="btn-primary text-white px-3 py-1 rounded-full mb-4">Přidat Poznámku</button>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <template x-for="(note, index) in notes" :key="index">
+                <div class="bg-gray-700 p-4 rounded-lg shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="font-semibold">{{ note.title }}</p>
+                        <p>{{ note.content }}</p>
+                        <p class="text-gray-500">Kategorie: <span x-text="getCategoryName(note.categoryId)"></span></p>
+                    </div>
+                    <button @click="deleteNote(note.id)" class="text-red-500 hover:text-red-600">Odstranit</button>
+                </div>
+            </template>
+        </div>
+    </section>
+</main>
+
+<footer class="bg-gray-800 text-white py-4">
+    <div class="container mx-auto px-6 text-center">
+        &copy; 2023 Second-brain-pwa. Všechna práva vyhrazena.
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('app', () => ({
+        addCategoryModal: false,
+        addNoteModal: false,
+        newCategoryName: '',
+        newNote: {
+            id: Date.now(),
+            title: '',
+            content: '',
+            categoryId: ''
+        },
+        categories: [],
+        notes: [],
+
+        init() {
+            // Načtení dat z localStorage
+            this.categories = JSON.parse(localStorage.getItem('categories')) || [];
+            this.notes = JSON.parse(localStorage.getItem('notes')) || [];
+        },
+
+        addCategory() {
+            if (this.newCategoryName.trim()) {
+                const newCategory = {
+                    id: Date.now(),
+                    name: this.newCategoryName
+                };
+                this.categories.push(newCategory);
+                localStorage.setItem('categories', JSON.stringify(this.categories));
+                this.addCategoryModal = false;
+                this.newCategoryName = '';
+            }
+        },
+
+        deleteCategory(id) {
+            this.categories = this.categories.filter(category => category.id !== id);
+            this.notes = this.notes.filter(note => note.categoryId !== id);
+            localStorage.setItem('categories', JSON.stringify(this.categories));
+            localStorage.setItem('notes', JSON.stringify(this.notes));
+        },
+
+        addNote() {
+            if (this.newNote.title.trim() && this.newNote.content.trim() && this.newNote.categoryId) {
+                this.notes.push({ ...this.newNote });
+                localStorage.setItem('notes', JSON.stringify(this.notes));
+                this.addNoteModal = false;
+                this.newNote = { id: Date.now(), title: '', content: '', categoryId: '' };
+            }
+        },
+
+        deleteNote(id) {
+            this.notes = this.notes.filter(note => note.id !== id);
+            localStorage.setItem('notes', JSON.stringify(this.notes));
+        },
+
+        getCategoryName(categoryId) {
+            const category = this.categories.find(category => category.id === categoryId);
+            return category ? category.name : 'Nedefinováno';
         }
-    </script>
-
-    <script>
-        // Service Worker
-        if ('serviceWorker' in navigator) {
-            self.addEventListener('install', event => {
-                event.waitUntil(
-                    caches.open('second-brain-cache').then(cache => {
-                        return cache.addAll([
-                            '/',
-                            '/index.html',
-                            'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css',
-                            'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js'
-                        ]);
-                    })
-                );
-            });
-
-            self.addEventListener('fetch', event => {
-                event.respondWith(
-                    caches.match(event.request).then(response => {
-                        return response || fetch(event.request);
-                    })
-                );
-            });
-        }
-    </script>
+    }));
+});
+</script>
 </body>
 </html>
