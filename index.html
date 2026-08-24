@@ -109,7 +109,7 @@
 document.addEventListener('alpine:init', () => {
     Alpine.data('app', () => ({
         addCategoryModal: false,
-        addNoteModal: true, // Zobrazit modál při načtení stránky
+        addNoteModal: false, // Nezobrazit modál při načtení stránky
         newCategoryName: '',
         newNote: {
             id: Date.now(),
