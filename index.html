@@ -104,7 +104,7 @@
 
 <footer class="bg-gray-800 text-white py-4">
     <div class="container mx-auto px-6 text-center">
-        &copy; 2023 Second-brain-pwa. Všechna práva vyhrazena.
+        &copy; 2026 Second-brain-pwa. Všechna práva vyhrazena.
     </div>
 </footer>
 
@@ -131,21 +131,21 @@ document.addEventListener('alpine:init', () => {
         },
 
         addCategory() {
-            if (this.newCategoryName.trim()) {
-                const newCategory = {
-                    id: Date.now(),
-                    name: this.newCategoryName
-                };
-                this.categories.push(newCategory);
-                localStorage.setItem('categories', JSON.stringify(this.categories));
-                this.newCategoryName = '';
-                this.addCategoryModal = false;
-                // Způsobíme znovu vykreslení komponenty
-                this.$nextTick(() => {
-                    this.categories = [...this.categories];
-                });
-            }
-        },
+    if (this.newCategoryName.trim()) {
+        const newCategory = {
+            id: Date.now(),
+            name: this.newCategoryName
+        };
+        this.categories.push(newCategory);
+        localStorage.setItem('categories', JSON.stringify(this.categories));
+        this.newCategoryName = '';
+        this.addCategoryModal = false;
+        // Způsobíme znovu vykreslení komponenty
+        this.$nextTick(() => {
+            this.categories = [...this.categories];
+        });
+    }
+}
 
         deleteCategory(id) {
             this.categories = this.categories.filter(category => category.id !== id);
