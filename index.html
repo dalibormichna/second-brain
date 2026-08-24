@@ -140,6 +140,10 @@ document.addEventListener('alpine:init', () => {
                 localStorage.setItem('categories', JSON.stringify(this.categories));
                 this.newCategoryName = '';
                 this.addCategoryModal = false;
+                // Způsobíme znovu vykreslení komponenty
+                this.$nextTick(() => {
+                    this.categories = [...this.categories];
+                });
             }
         },
 
