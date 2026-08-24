@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Second Brain</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f7fa;
+        }
+        .bg-george-primary {
+            background-color: #00a8e8;
+        }
+        .text-george-primary {
+            color: #00a8e8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center">
+    <div x-data="secondBrain" class="w-full max-w-3xl p-6 bg-white rounded-lg shadow-md space-y-4">
+        <h1 class="text-2xl font-bold text-gray-800">Second Brain</h1>
+        
+        <!-- Project Management -->
+        <div class="border-b border-gray-300 pb-4">
+            <h2 class="font-semibold mb-2">Projects</h2>
+            <div class="flex items-center justify-between space-x-2">
+                <input x-model="newProject.name" placeholder="New Project Name" class="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button @click="addProject()" class="bg-george-primary text-white px-4 py-2 rounded">Add</button>
+            </div>
+            <ul class="divide-y divide-gray-300 space-y-2 mt-2">
+                <template x-for="(project, index) in projects" :key="index">
+                    <li class="p-2 flex justify-between items-center bg-white rounded-lg shadow-sm">
+                        <span x-text="project.name"></span>
+                        <div>
+                            <button @click="editProject(index)" class="text-blue-500">Edit</button>
+                            <button @click="deleteProject(index)" class="text-red-500 ml-2">Delete</button>
+                        </div>
+                    </li>
+                </template>
+            </ul>
+        </div>
+
+        <!-- Idea Management -->
+        <div class="border-b border-gray-300 pb-4">
+            <h2 class="font-semibold mb-2">Ideas</h2>
+            <div class="flex items-center justify-between space-x-2">
+                <input x-model="newIdea.content" placeholder="New Idea" class="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <select x-model="newIdea.category" class="border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select Category</option>
+                    <template x-for="category in categories" :key="category">
+                        <option :value="category" x-text="category"></option>
+                    </template>
+                </select>
+                <button @click="addIdea()" class="bg-george-primary text-white px-4 py-2 rounded">Add Idea</button>
+            </div>
+            <ul class="divide-y divide-gray-300 space-y-2 mt-2">
+                <template x-for="(idea, index) in filteredIdeas" :key="index">
+                    <li class="p-2 flex justify-between items-center bg-white rounded-lg shadow-sm">
+                        <span x-text="`${idea.content} (${idea.category})`"></span>
+                        <div>
+                            <button @click="editIdea(index)" class="text-blue-500">Edit</button>
+                            <button @click="deleteIdea(index)" class="text-red-500 ml-2">Delete</button>
+                        </div>
+                    </li>
+                </template>
+            </ul>
+        </div>
+
+        <!-- Copy Context for AI -->
+        <div>
+            <button @click="copyContextForAI()" class="bg-green-500 text-white px-4 py-2 rounded">Copy Context for AI</button>
+        </div>
+
+        <!-- Category Filter -->
+        <div>
+            <select x-model="filterCategory" class="border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">All Categories</option>
+                <template x-for="category in categories" :key="category">
+                    <option :value="category" x-text="category"></option>
+                </template>
+            </select>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('secondBrain', () => ({
+                newProject: { name: '' },
+                projects: JSON.parse(localStorage.getItem('projects')) || [],
+                newIdea: { content: '', category: '' },
+                ideas: JSON.parse(localStorage.getItem('ideas')) || [],
+                categories: ['Work', 'Personal', 'Other'],
+                filterCategory: '',
+                addProject() {
+                    if (this.newProject.name) {
+                        this.projects.push({ name: this.newProject.name });
+                        this.saveData();
+                        console.log('Project added:', this.projects);
+                        this.newProject.name = '';
+                    }
+                },
+                editProject(index) {
+                    const newName = prompt('Edit project name:', this.projects[index].name);
+                    if (newName) {
+                        this.projects[index].name = newName;
+                        this.saveData();
+                        console.log('Project edited:', this.projects);
+                    }
+                },
+                deleteProject(index) {
+                    if (confirm('Are you sure?')) {
+                        this.projects.splice(index, 1);
+                        this.saveData();
+                        console.log('Project deleted:', this.projects);
+                    }
+                },
+                addIdea() {
+                    if (this.newIdea.content && this.newIdea.category) {
+                        this.ideas.push({ content: this.newIdea.content, category: this.newIdea.category });
+                        this.saveData();
+                        console.log('Idea added:', this.ideas);
+                        this.newIdea.content = '';
+                        this.newIdea.category = '';
+                    }
+                },
+                editIdea(index) {
+                    const newContent = prompt('Edit idea:', this.ideas[index].content);
+                    if (newContent) {
+                        this.ideas[index].content = newContent;
+                        this.saveData();
+                        console.log('Idea edited:', this.ideas);
+                    }
+                },
+                deleteIdea(index) {
+                    if (confirm('Are you sure?')) {
+                        this.ideas.splice(index, 1);
+                        this.saveData();
+                        console.log('Idea deleted:', this.ideas);
+                    }
+                },
+                copyContextForAI() {
+                    const context = JSON.stringify({
+                        projects: this.projects,
+                        ideas: this.ideas
+                    }, null, 2);
+                    navigator.clipboard.writeText(context).then(() => alert('Copied to clipboard!'));
+                },
+                get filteredIdeas() {
+                    return this.filterCategory ? this.ideas.filter(idea => idea.category === this.filterCategory) : this.ideas;
+                },
+                saveData() {
+                    localStorage.setItem('projects', JSON.stringify(this.projects));
+                    localStorage.setItem('ideas', JSON.stringify(this.ideas));
+                    console.log('Data saved:', { projects: this.projects, ideas: this.ideas });
+                }
+            }));
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => console.log('SW registered:', registration))
+                    .catch(error => console.error('SW registration failed:', error));
+            });
+        }
+    </script>
+
+    <script>
+        // Service Worker
+        if ('serviceWorker' in navigator) {
+            self.addEventListener('install', event => {
+                event.waitUntil(
+                    caches.open('second-brain-cache').then(cache => {
+                        return cache.addAll([
+                            '/',
+                            '/index.html',
+                            'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css',
+                            'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js'
+                        ]);
+                    })
+                );
+            });
+
+            self.addEventListener('fetch', event => {
+                event.respondWith(
+                    caches.match(event.request).then(response => {
+                        return response || fetch(event.request);
+                    })
+                );
+            });
+        }
+    </script>
+</body>
+</html>
