@@ -127,15 +127,15 @@ document.addEventListener('alpine:init', () => {
         <button @click="addNoteModal = true" class="btn-primary text-white px-3 py-1 rounded-full mb-4">Přidat Poznámku</button>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <template x-for="(note, index) in notes" :key="index">
-                <div class="bg-gray-700 p-4 rounded-lg shadow-sm flex items-center justify-between">
-                    <div>
-                        <p class="font-semibold">{{ note.title }}</p>
-                        <p>{{ note.content }}</p>
-                        <p class="text-gray-500">Kategorie: <span x-text="getCategoryName(note.categoryId)"></span></p>
-                    </div>
-                    <button @click="deleteNote(note.id)" class="text-red-500 hover:text-red-600">Odstranit</button>
-                </div>
-            </template>
+    <div class="bg-gray-700 p-4 rounded-lg shadow-sm flex items-center justify-between">
+        <div>
+            <p class="font-semibold">{{ note.title }}</p>
+            <p>{{ note.content }}</p>
+            <p class="text-gray-500">Kategorie: <span x-text="getCategoryName(note.categoryId)"></span></p>
+        </div>
+        <button @click="deleteNote(note.id)" class="text-red-500 hover:text-red-600">Odstranit</button>
+    </div>
+</template>
         </div>
     </section>
 
@@ -194,24 +194,24 @@ document.addEventListener('alpine:init', () => {
         },
 
         addNote() {
-            if (this.newNote.title.trim() && this.newNote.content.trim() && this.newNote.categoryId) {
-                const newNote = {
-                    id: Date.now(),
-                    title: this.newNote.title,
-                    content: this.newNote.content,
-                    categoryId: parseInt(this.newNote.categoryId)
-                };
-                this.notes.push(newNote);
-                localStorage.setItem('notes', JSON.stringify(this.notes));
-                this.newNote = {
-                    id: Date.now(),
-                    title: '',
-                    content: '',
-                    categoryId: ''
-                };
-                this.addNoteModal = false;
-            }
-        },
+    if (this.newNote.title.trim() && this.newNote.content.trim() && this.newNote.categoryId) {
+        const newNote = {
+            id: Date.now(),
+            title: this.newNote.title,
+            content: this.newNote.content,
+            categoryId: parseInt(this.newNote.categoryId)
+        };
+        this.notes.push(newNote);
+        localStorage.setItem('notes', JSON.stringify(this.notes));
+        this.newNote = {
+            id: Date.now(),
+            title: '',
+            content: '',
+            categoryId: ''
+        };
+        this.addNoteModal = false;
+    }
+},
 
         deleteNote(id) {
             this.notes = this.notes.filter(note => note.id !== id);
@@ -241,10 +241,10 @@ document.addEventListener('alpine:init', () => {
         notes: [],
 
         init() {
-            // Načtení dat z localStorage
-            this.categories = JSON.parse(localStorage.getItem('categories')) || [];
-            this.notes = JSON.parse(localStorage.getItem('notes')) || [];
-        },
+    // Načtení dat z localStorage
+    this.categories = JSON.parse(localStorage.getItem('categories')) || [];
+    this.notes = JSON.parse(localStorage.getItem('notes')) || [];
+},
 
         addCategory() {
             if (this.newCategoryName.trim()) {
