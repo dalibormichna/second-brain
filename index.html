@@ -70,17 +70,56 @@
     </section>
 
     <!-- Sekce kategorií -->
-    <section class="bg-gray-800 shadow-md rounded-lg p-6 mb-6">
-        <h2 class="text-xl font-bold mb-4">Kategorie</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <template x-for="(category, index) in categories" :key="index">
-                <div class="bg-gray-700 p-4 rounded-lg shadow-sm flex items-center justify-between">
-                    <p>{{ category.name }}</p>
-                    <button @click="deleteCategory(category.id)" class="text-red-500 hover:text-red-600">Odstranit</button>
-                </div>
-            </template>
-        </div>
-    </section>
+<section class="bg-gray-800 shadow-md rounded-lg p-6 mb-6">
+    <h2 class="text-xl font-bold mb-4">Kategorie</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <template x-for="(category, index) in categories" :key="index">
+    <div class="bg-gray-700 p-4 rounded-lg shadow-sm flex items-center justify-between">
+        <p x-text="category.name"></p>
+        <button @click="deleteCategory(category.id)" class="text-red-500 hover:text-red-600">Odstranit</button>
+    </div>
+</template>
+    </div>
+</section>
+
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('app', () => ({
+        addCategoryModal: false,
+        addNoteModal: false,
+        newCategoryName: '',
+        newNote: {
+            id: Date.now(),
+            title: '',
+            content: '',
+            categoryId: ''
+        },
+        categories: [],
+        notes: [],
+
+        init() {
+    // Načtení dat z localStorage
+    this.categories = JSON.parse(localStorage.getItem('categories')) || [];
+    this.notes = JSON.parse(localStorage.getItem('notes')) || [];
+},
+
+      addCategory() {
+    if (this.newCategoryName.trim()) {
+        const newCategory = {
+            id: Date.now(),
+            name: this.newCategoryName
+        };
+        this.categories.push(newCategory);
+        localStorage.setItem('categories', JSON.stringify(this.categories));
+        this.newCategoryName = '';
+        this.addCategoryModal = false;
+    }
+        },
+
+        // ... zbytek kódu ...
+    }));
+});
+</script>
 
     <!-- Sekce poznámek -->
     <section class="bg-gray-800 shadow-md rounded-lg p-6 mb-6">
